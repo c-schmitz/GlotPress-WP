@@ -86,7 +86,7 @@ class GP_Glossary extends GP_Thing {
 	}
 
 	public function delete() {
-		$glossary_entries = GP::$glossary_entries->find_many( array( 'glossary_id', $this->id ) );
+		$glossary_entries = GP::$glossary_entry->find_many( array( 'glossary_id', $this->id ) );
 		
 		if ( ! empty( $glossary_entries ) ) {
 			foreach ( $glossary_entries as $entry ) {
