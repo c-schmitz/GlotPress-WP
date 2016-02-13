@@ -276,7 +276,7 @@ class GP_Translation_Set extends GP_Thing {
 	}
 	
 	function delete() {
-		$translations = GP::$translations->find_many( array( 'translation_set_id' => $this->id ) );
+		$translations = GP::$translation->find_many( array( 'translation_set_id' => $this->id ) );
 
 		if ( $translations ) {
 			foreach ( $tranlsations as $translation ) {
