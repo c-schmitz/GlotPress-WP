@@ -60,8 +60,9 @@ class GP_Format_Properties extends GP_Format {
 			$entry->singular = null;
 
 			foreach( $originals as $original ) {
-				if ( $original->context == $entry->context ) {
+				if ( $original->singular == $entry->context ) {
 					$entry->singular = $original->singular;
+					$entry->context = $original->context;
 					break;
 				}
 			}
@@ -101,7 +102,7 @@ class GP_Format_Properties extends GP_Format {
 				} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
 					$entry = new Translation_Entry();
 					$entry->context = rtrim( $this->unescape( $matches[1] ) );
-					$entry->singular = ltrim( json_decode( '"' . $matches[3] . '"' ) );
+					$entry->singular = json_decode( '"' . $matches[3] . '"' );
 
 					if ( ! is_null( $comment )) {
 						$entry->extracted_comments = $comment;
