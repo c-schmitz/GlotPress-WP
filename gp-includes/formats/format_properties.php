@@ -22,6 +22,8 @@ class GP_Format_Properties extends GP_Format {
 			$original = str_replace( "\n", "\\n", $original );
 			$translation = str_replace( "\n", "\\n", $translation );
 			$translation = substr( json_encode( $translation ), 1, -1 );
+			$translation = str_replace( '\"', '"', $translation );
+			$translation = str_replace( '\\\\', '\\', $translation );
 			$comment = preg_replace( "/(^\s+)|(\s+$)/us", "", $entry->extracted_comments );
 
 			if ( $comment == "" ) {
