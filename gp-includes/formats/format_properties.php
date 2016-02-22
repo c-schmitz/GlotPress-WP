@@ -28,7 +28,13 @@ class GP_Format_Properties extends GP_Format {
 				$comment = "No comment provided.";
 			}
 
-			$result .= "# $comment\n" . $this->escape_key( $original ) . " = $translation\n\n";
+			$comment_lines = explode( "\n", $comment );
+
+			foreach( $comment_lines as $line ) {
+				$result .= "# $line\n";
+			}
+			
+			$result .= $this->escape_key( $original ) . " = $translation\n\n";
 		}
 
 		return $result;
@@ -102,9 +108,9 @@ class GP_Format_Properties extends GP_Format {
 
 				if ( $matches[1] !== "No comment provided." ) {
 					if ( null !== $comment ) {
-						$comment = $comment . "\n" . $matches[1];
+						$comment = $comment . "\n" . $matches[2];
 					} else {
-						$comment = $matches[1];
+						$comment = $matches[2];
 					}
 				} else {
 					$comment = null;
