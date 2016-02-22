@@ -86,9 +86,8 @@ class GP_Format_Properties extends GP_Format {
 			return false;
 		}
 
-		$context = $comment = null;
+		$entry = $comment = null;
 		$inline = false;
-		$entry = null;
 		$lines = explode( "\n", $file );
 
 		foreach ( $lines as $line ) {
@@ -96,7 +95,7 @@ class GP_Format_Properties extends GP_Format {
 				$matches[1] = trim( $matches[1] );
 
 				if ( $matches[1] !== "No comment provided." ) {
-					if ( null != $comment ) {
+					if ( null !== $comment ) {
 						$comment = $comment . "\n" . $matches[1];
 					} else {
 						$comment = $matches[1];
