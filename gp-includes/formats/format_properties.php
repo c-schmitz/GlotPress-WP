@@ -109,7 +109,7 @@ class GP_Format_Properties extends GP_Format {
 				} else {
 					$comment = null;
 				}
-			} else if ( false == $inline && preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
+			} else if ( false === $inline && preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
 				// Check to see if this line continues on to the next
 				if( gp_endswith( $line, '\\' ) ) {
 					$inline = true;
