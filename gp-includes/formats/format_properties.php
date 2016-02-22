@@ -87,6 +87,8 @@ class GP_Format_Properties extends GP_Format {
 		}
 
 		$context = $comment = null;
+		$inline = false;
+		$entry = null;
 		$lines = explode( "\n", $file );
 
 		foreach ( $lines as $line ) {
@@ -103,6 +105,18 @@ class GP_Format_Properties extends GP_Format {
 					$comment = null;
 				}
 			} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
+				// If we have been processing a multi-line entry, save it now.
+				if ( true == $inline ) {
+					$entries->add_entry( $entry );
+					$inline = false;
+				}
+				
+				// Check to see if this line continues on to the next
+				if( gp_endswith( $line, '\\' ) ) {
+					$inline = true;
+					$matches[3] = trim( $matches[3], '\\' );
+				}
+				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
 				$entry->singular = json_decode( '"' . $matches[3] . '"' );
@@ -113,7 +127,24 @@ class GP_Format_Properties extends GP_Format {
 				}
 
 				$entry->translations = array();
-				$entries->add_entry( $entry );
+
+				// Only save this entry if we're not in a multi line translation.
+				if ( false == $inline ) {
+					$entries->add_entry( $entry );
+				}
+			} else {
+				// If we're processing a multi-line entry, add the line to the translation.
+				if( true == $inline ) {
+					// Check to make sure we're not a blank line.
+					if( '' != trim( $line ) ) {
+						// If there's still more lines to add, trim off the trailing slash.
+						if( gp_endswith( $line, '\\' ) ) {
+							$line = trim( $line '\\' );
+						}
+						// Decode the translation and add it to the current entry.
+						$entry->singular = $entry->singular . json_decode( '"' . $line . '"' );
+					}
+				}
 			}
 		}
 
