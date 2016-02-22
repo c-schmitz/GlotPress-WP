@@ -105,7 +105,7 @@ class GP_Format_Properties extends GP_Format {
 				}
 			} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
 				// If we have been processing a multi-line entry, save it now.
-				if ( true == $inline ) {
+				if ( true === $inline ) {
 					$entries->add_entry( $entry );
 					$inline = false;
 				}
@@ -128,12 +128,12 @@ class GP_Format_Properties extends GP_Format {
 				$entry->translations = array();
 
 				// Only save this entry if we're not in a multi line translation.
-				if ( false == $inline ) {
+				if ( false === $inline ) {
 					$entries->add_entry( $entry );
 				}
 			} else {
 				// If we're processing a multi-line entry, add the line to the translation.
-				if( true == $inline ) {
+				if( true === $inline ) {
 					// Check to make sure we're not a blank line.
 					if( '' != trim( $line ) ) {
 						// If there's still more lines to add, trim off the trailing slash.
