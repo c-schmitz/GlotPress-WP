@@ -164,6 +164,12 @@ class GP_Format_Properties extends GP_Format {
 			}
 		}
 
+		// Make sure we save the last entry if it is a multi-line entry.
+		if ( true === $inline ) {
+			$entries->add_entry( $entry );
+			$inline = false;
+		}
+
 		return $entries;
 	}
 
