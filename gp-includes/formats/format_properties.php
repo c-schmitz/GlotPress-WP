@@ -95,7 +95,11 @@ class GP_Format_Properties extends GP_Format {
 					$matches[1] = trim( $matches[1] );
 
 					if ( $matches[1] !== "No comment provided." ) {
-						$comment = $matches[1];
+						if ( null != $comment ) {
+							$comment = $comment . "\n" . $matches[1];
+						} else {
+							$comment = $matches[1];
+						}
 					} else {
 						$comment = null;
 					}
