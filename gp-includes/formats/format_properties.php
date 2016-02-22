@@ -90,32 +90,30 @@ class GP_Format_Properties extends GP_Format {
 		$lines = explode( "\n", $file );
 
 		foreach ( $lines as $line ) {
-			if ( is_null( $context ) ) {
-				if ( preg_match( '/^(#|!)\s*(.*)\s*$/', $line, $matches ) ) {
-					$matches[1] = trim( $matches[1] );
+			if ( preg_match( '/^(#|!)\s*(.*)\s*$/', $line, $matches ) ) {
+				$matches[1] = trim( $matches[1] );
 
-					if ( $matches[1] !== "No comment provided." ) {
-						if ( null != $comment ) {
-							$comment = $comment . "\n" . $matches[1];
-						} else {
-							$comment = $matches[1];
-						}
+				if ( $matches[1] !== "No comment provided." ) {
+					if ( null != $comment ) {
+						$comment = $comment . "\n" . $matches[1];
 					} else {
-						$comment = null;
+						$comment = $matches[1];
 					}
-				} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
-					$entry = new Translation_Entry();
-					$entry->context = rtrim( $this->unescape( $matches[1] ) );
-					$entry->singular = json_decode( '"' . $matches[3] . '"' );
-
-					if ( ! is_null( $comment )) {
-						$entry->extracted_comments = $comment;
-						$comment = null;
-					}
-
-					$entry->translations = array();
-					$entries->add_entry( $entry );
+				} else {
+					$comment = null;
 				}
+			} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
+				$entry = new Translation_Entry();
+				$entry->context = rtrim( $this->unescape( $matches[1] ) );
+				$entry->singular = json_decode( '"' . $matches[3] . '"' );
+
+				if ( ! is_null( $comment )) {
+					$entry->extracted_comments = $comment;
+					$comment = null;
+				}
+
+				$entry->translations = array();
+				$entries->add_entry( $entry );
 			}
 		}
 
