@@ -138,7 +138,7 @@ class GP_Format_Properties extends GP_Format {
 					if( '' != trim( $line ) ) {
 						// If there's still more lines to add, trim off the trailing slash.
 						if( gp_endswith( $line, '\\' ) ) {
-							$line = trim( $line '\\' );
+							$line = trim( $line, '\\' );
 						}
 						// Decode the translation and add it to the current entry.
 						$entry->singular = $entry->singular . json_decode( '"' . $line . '"' );
