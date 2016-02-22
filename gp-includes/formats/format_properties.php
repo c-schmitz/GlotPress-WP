@@ -92,6 +92,12 @@ class GP_Format_Properties extends GP_Format {
 
 		foreach ( $lines as $line ) {
 			if ( preg_match( '/^(#|!)\s*(.*)\s*$/', $line, $matches ) ) {
+				// If we have been processing a multi-line entry, save it now.
+				if ( true === $inline ) {
+					$entries->add_entry( $entry );
+					$inline = false;
+				}
+				
 				$matches[1] = trim( $matches[1] );
 
 				if ( $matches[1] !== "No comment provided." ) {
@@ -103,13 +109,7 @@ class GP_Format_Properties extends GP_Format {
 				} else {
 					$comment = null;
 				}
-			} else if ( preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
-				// If we have been processing a multi-line entry, save it now.
-				if ( true === $inline ) {
-					$entries->add_entry( $entry );
-					$inline = false;
-				}
-				
+			} else if ( false == $inline && preg_match( '/^(.*)(=|:)(.*)$/', $line, $matches ) ) {
 				// Check to see if this line continues on to the next
 				if( gp_endswith( $line, '\\' ) ) {
 					$inline = true;
@@ -118,7 +118,7 @@ class GP_Format_Properties extends GP_Format {
 				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
-				$entry->singular = json_decode( '"' . $matches[3] . '"' );
+				$entry->singular = json_decode( '"' . str_replace( '"', '\"', $matches[3] ) . '"' );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
@@ -138,11 +138,22 @@ class GP_Format_Properties extends GP_Format {
 					if( '' != trim( $line ) ) {
 						// If there's still more lines to add, trim off the trailing slash.
 						if( gp_endswith( $line, '\\' ) ) {
-							$line = trim( $line, '\\' );
+							$line = rtrim( $line, '\\' );
 						}
+
+						// Strip off leading spaces.
+						$line = ltrim( $line );
+
 						// Decode the translation and add it to the current entry.
-						$entry->singular = $entry->singular . json_decode( '"' . $line . '"' );
+						$entry->singular = $entry->singular . json_decode( '"' . str_replace( '"', '\"', $line ) . '"' );
+					} else {
+						// Any blank line signals end of the entry.
+						$entries->add_entry( $entry );
+						$inline = false;
 					}
+				} else {
+					// If we hit a blank line and are not processing a multi-line entry, reset the comment.
+					$comment = null;
 				}
 			}
 		}
