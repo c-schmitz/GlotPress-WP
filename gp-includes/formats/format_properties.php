@@ -126,7 +126,9 @@ class GP_Format_Properties extends GP_Format {
 				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
-				$entry->singular = json_decode( '"' . str_replace( '"', '\"', $matches[3] ) . '"' );
+				$string = str_replace( '"', '\"', $matches[3] );
+				$string = str_replace( '\\', '\\\\', $string );
+				$entry->singular = json_decode( '"' . $string . '"' );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
@@ -153,7 +155,9 @@ class GP_Format_Properties extends GP_Format {
 						$line = ltrim( $line );
 
 						// Decode the translation and add it to the current entry.
-						$entry->singular = $entry->singular . json_decode( '"' . str_replace( '"', '\"', $line ) . '"' );
+						$string = str_replace( '"', '\"', $line );
+						$string = str_replace( '\\', '\\\\', $string );
+						$entry->singular = $entry->singular . json_decode( '"' . str_replace( '"', '\"', $string ) . '"' );
 					} else {
 						// Any blank line signals end of the entry.
 						$entries->add_entry( $entry );
