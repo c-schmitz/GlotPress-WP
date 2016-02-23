@@ -119,15 +119,15 @@ class GP_Format_Properties extends GP_Format {
 				}
 			} else if ( false === $inline && preg_match( '/^(.*)(=|:)(.*)$/U', $line, $matches ) ) {
 				// Check to see if this line continues on to the next
-				if( gp_endswith( $line, '\\' ) ) {
+				if ( gp_endswith( $line, '\\' ) ) {
 					$inline = true;
 					$matches[3] = trim( $matches[3], '\\' );
 				}
 				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
-				$string = str_replace( '"', '\"', $matches[3] );
-				$string = str_replace( '\\', '\\\\', $string );
+				$string = str_replace( '\\', '\\\\', $matches[3] );
+				$string = str_replace( '"', '\"', $string );
 				$entry->singular = json_decode( '"' . $string . '"' );
 
 				if ( ! is_null( $comment )) {
