@@ -41,7 +41,9 @@ class GP_Test_Format_Properties extends GP_UnitTestCase {
 
 	function test_read_originals() {
 		$translations = $this->properties->read_originals_from_file( GP_DIR_TESTDATA . '/originals.properties' );
-		$this->assertEquals( count( $this->entries ), count( $translations->entries ), 'number of read originals is different from the expected' );
+		
+		// We're adding one extra to the count for the entries because the file contains a multi-line entry that we want to test reading but don't test writing later.
+		$this->assertEquals( count( $this->entries ) + 1, count( $translations->entries ), 'number of read originals is different from the expected' );
 
 		foreach( $this->entries as $sample ) {
 			list( $context, $original, $translation, $comment ) = $sample;
