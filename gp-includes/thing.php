@@ -314,7 +314,9 @@ class GP_Thing {
 		$query = "DELETE FROM $this->table";
 		$conditions_sql = $this->sql_from_conditions( $where );
 		if ( $conditions_sql ) $query .= " WHERE $conditions_sql";
-		return $this->query( $query );
+		$result = $this->query( $query );
+		$this->after_delete();
+		return $result;
 	}
 
 	/**
@@ -423,6 +425,10 @@ class GP_Thing {
 	}
 
 	public function after_save() {
+		return true;
+	}
+	
+	public function after_delete() {
 		return true;
 	}
 
