@@ -20,10 +20,10 @@ class GP_Format_Properties extends GP_Format {
 
 			$original = empty( $entry->context ) ? $entry->singular : $entry->context;
 			$original = str_replace( "\n", "\\n", $original );
+
 			$translation = str_replace( "\n", "\\n", $translation );
-			$translation = substr( json_encode( $translation ), 1, -1 );
-			$translation = str_replace( '\"', '"', $translation );
-			$translation = str_replace( '\\\\', '\\', $translation );
+			$translation = $this->uni_encode( $translation );
+
 			$comment = preg_replace( "/(^\s+)|(\s+$)/us", "", $entry->extracted_comments );
 
 			if ( $comment == "" ) {
@@ -42,6 +42,63 @@ class GP_Format_Properties extends GP_Format {
 		return $result;
 	}
 
+	private function uni_encode( $string ) {
+		$result = '';
+		$offset = 0;
+		
+		while ( $offset >= 0 ) {
+			$val = $this->ordutf8( $string, $offset );
+
+			if( $val > 128 ) {
+				$result .= sprintf( '\u%04x', $val );
+			} else {
+				$result .= chr( $val );
+			}
+		}
+		
+		return $result;
+	}
+	
+	private function uni_decode( $string ) {
+		return preg_replace_callback( "/\\\\u([a-f0-9]{4})/", array( $this, "uni_decode_callback" ), $string );
+	}
+	
+	private function uni_decode_callback( $matches ) {
+		return iconv( 'UCS-4LE', 'UTF-8', pack( 'V', hexdec( $matches[ 0 ] ) ) );
+	}
+	
+	// From http://php.net/manual/en/function.ord.php#109812
+	private function ordutf8( $string, &$offset ) {
+		$code = ord( substr( $string, $offset,1 ) ); 
+		if ( $code >= 128 ) {        //otherwise 0xxxxxxx
+			if ( $code < 224 ) {
+				$bytesnumber = 2;                //110xxxxx
+			} else if ($code < 240) {
+				$bytesnumber = 3;        //1110xxxx
+			} else if ( $code < 248 ) {
+				$bytesnumber = 4;    //11110xxx
+			}
+			
+			$codetemp = $code - 192 - ($bytesnumber > 2 ? 32 : 0) - ($bytesnumber > 3 ? 16 : 0);
+			
+			for ( $i = 2; $i <= $bytesnumber; $i++ ) {
+				$offset ++;
+				$code2 = ord( substr( $string, $offset, 1 ) ) - 128;        //10xxxxxx
+				$codetemp = ( $codetemp * 64 ) + $code2;
+			}
+			
+			$code = $codetemp;
+		}
+		
+		$offset += 1;
+		
+		if ( $offset >= strlen( $string ) ) {
+			$offset = -1;
+		}
+		
+		return $code;
+	}
+	
 	public function read_translations_from_file( $file_name, $project = null ) {
 		if ( is_null( $project ) ) {
 			return false;
@@ -126,9 +183,7 @@ class GP_Format_Properties extends GP_Format {
 				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
-				$string = str_replace( '\\', '\\\\', $matches[3] );
-				$string = str_replace( '"', '\"', $string );
-				$entry->singular = json_decode( '"' . $string . '"' );
+				$entry->singular = $this->uni_decode( $matches[3] );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
@@ -155,9 +210,7 @@ class GP_Format_Properties extends GP_Format {
 						$line = ltrim( $line );
 
 						// Decode the translation and add it to the current entry.
-						$string = str_replace( '"', '\"', $line );
-						$string = str_replace( '\\', '\\\\', $string );
-						$entry->singular = $entry->singular . json_decode( '"' . str_replace( '"', '\"', $string ) . '"' );
+						$entry->singular = $entry->singular . $this->uni_decode( $line );
 					} else {
 						// Any blank line signals end of the entry.
 						$entries->add_entry( $entry );
