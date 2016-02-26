@@ -11,7 +11,7 @@ class GP_Test_Format_Properties extends GP_UnitTestCase {
 			array('with_a_quote', 'I\'m with a quote', 'I\'m with a quote', ''),
 			array('with_newlines', 'new\nlines', 'new\nlines', ''),
 			array('with_doublequotes', 'double "quotes"', 'I have double "quotes"', ''),
-			array('with_utf8', '\u043f\u0438\u0442\u043a\u0430', 'баба ми омеси питка', ''),
+			array('with_utf8', 'питка', 'баба ми омеси питка', ''),
 			array('with_lt', 'you < me', 'ти < аз', ''),
 			array('with_gt', 'me > you', 'аз > ти', ''),
 			array('with_amps', 'me & you are not &amp;', 'аз & ти не сме &amp;', ''),
