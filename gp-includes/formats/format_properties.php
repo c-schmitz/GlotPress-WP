@@ -140,10 +140,12 @@ class GP_Format_Properties extends GP_Format {
 	 * @param $string string The UTF-8 string to process.
 	 * @param $offset int The offset of the string to return the character value of.
 	 *
-	 * @return int
+	 * @return int|bool
 	 */
 	private function ordutf8( $string, &$offset ) {
 		$code = ord( substr( $string, $offset, 1 ) ); 
+		$bytesnumber = 1;
+		
 		if ( $code >= 128 ) {        //otherwise 0xxxxxxx
 			if ( $code < 224 ) {
 				$bytesnumber = 2;                //110xxxxx
