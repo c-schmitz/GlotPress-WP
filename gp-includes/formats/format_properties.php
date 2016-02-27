@@ -8,6 +8,13 @@ class GP_Format_Properties extends GP_Format {
 
 	public $exported = '';
 
+	/**
+	 * Generates a string the contains the $entries to export in the Properties file format.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string
+	 */
 	public function print_exported_file( $project, $locale, $translation_set, $entries ) {
 		$result = '';
 
@@ -42,6 +49,15 @@ class GP_Format_Properties extends GP_Format {
 		return $result;
 	}
 
+	/**
+	 * Encodes a PHP string to a unicode escaped string (multi-byte characters are encoded in the \uXXXX format).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The string to encode.
+	 *
+	 * @return string
+	 */
 	private function uni_encode( $string ) {
 		$result = '';
 		$offset = 0;
@@ -59,16 +75,36 @@ class GP_Format_Properties extends GP_Format {
 		return $result;
 	}
 	
+	/**
+	 * Decodes a unicode escaped string to a PHP string.
+	 *
+	 * @param $string string The string to decode.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string
+	 */
 	private function uni_decode( $string ) {
 		return preg_replace_callback( "/\\\\u([a-f0-9]{4})/", array( $this, "uni_decode_callback" ), $string );
 	}
 	
+	/**
+	 * Part of uni_decode(), this is the call back function that does the heavy lifting of converting a \uXXXX
+	 * value to a UTF-8 encoded character sequence.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $matches array The array of matches from preg_replace_callback().
+	 *
+	 * @return string
+	 */
 	private function uni_decode_callback( $matches ) {
 		$binary = decbin( hexdec( $matches[1] ) );
 		$bin_length = strlen( $binary );
 		
 		$byte = array();
 		
+		// UTF-8 encoding is a little complex, see https://en.wikipedia.org/wiki/UTF-8#Description for details of the below values.	
 		if( $bin_length > 16 ) {        // > 16 bits, need 4 unicode bytes to encode
 			$byte[ 0 ] = chr( bindec( '11110' . sprintf( '%03s', substr( $binary, 0, $bin_length - 18 ) ) ) );
 			$byte[ 1 ] = chr( bindec( '10' . sprintf( '%06s', substr( $binary, -( 6 * 3 ), 6 ) ) ) );
@@ -94,7 +130,18 @@ class GP_Format_Properties extends GP_Format {
 		return implode( $byte );
 	}
 	
-	// From http://php.net/manual/en/function.ord.php#109812
+	/**
+	 * Part of uni_encode(), this returns the character value of a UTF-8 encoded string.
+	 *
+	 * From http://php.net/manual/en/function.ord.php#109812
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The UTF-8 string to process.
+	 * @param $offset int The offset of the string to return the character value of.
+	 *
+	 * @return int
+	 */
 	private function ordutf8( $string, &$offset ) {
 		$code = ord( substr( $string, $offset, 1 ) ); 
 		if ( $code >= 128 ) {        //otherwise 0xxxxxxx
@@ -126,6 +173,16 @@ class GP_Format_Properties extends GP_Format {
 		return $code;
 	}
 	
+	/**
+	 * Reads a set of translations from a properties file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $file_name string The filename of the uploaded properties file.
+	 * @param $project GP_Project The project object to read the translations in to.
+	 *
+	 * @return Translations
+	 */
 	public function read_translations_from_file( $file_name, $project = null ) {
 		if ( is_null( $project ) ) {
 			return false;
@@ -170,6 +227,15 @@ class GP_Format_Properties extends GP_Format {
 		return $new_translations;
 	}
 
+	/**
+	 * Reads a set of original strings from a properties file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $file_name string The filename of the uploaded properties file.
+	 *
+	 * @return Translations
+	 */
 	public function read_originals_from_file( $file_name ) {
 		$entries = new Translations;
 		$file = file_get_contents( $file_name );
@@ -260,6 +326,16 @@ class GP_Format_Properties extends GP_Format {
 	}
 
 
+	/**
+	 * The callback to sort the entries by, used above in print_exported_file().
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $a Translations The first translation to compare.
+	 * @param $b Translations The second translation to compare.
+	 *
+	 * @return int
+	 */
 	private function sort_entries( $a, $b ) {
 		if ( $a->context == $b->context ) {
 			return 0;
@@ -268,14 +344,41 @@ class GP_Format_Properties extends GP_Format {
 		return ( $a->context > $b->context ) ? +1 : -1;
 	}
 
+	/**
+	 * Unescape a string to be used as a value in the properties file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The string to unescape.
+	 *
+	 * @return string
+	 */
 	private function unescape( $string ) {
 		return stripcslashes( $string );
 	}
 
+	/**
+	 * Escape a string to be used as a value in the properties file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The string to escape.
+	 *
+	 * @return string
+	 */
 	private function escape( $string ) {
 		return addcslashes( $string, '"\\/' );
 	}
 
+	/**
+	 * Escape a string to be used as a key name in the properties file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The string to escape.
+	 *
+	 * @return string
+	 */
 	private function escape_key( $string ) {
 		return addcslashes( $string, '=: ' );
 	}
