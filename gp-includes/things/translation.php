@@ -79,12 +79,12 @@ class GP_Translation extends GP_Thing {
 		return str_replace( '↵', "\n", $translation );
 	}
 
-	public function restrict_fields( $translation ) {
-		$translation->translation_0_should_not_be( 'empty_string' );
-		$translation->status_should_not_be( 'empty' );
-		$translation->original_id_should_be( 'positive_int' );
-		$translation->translation_set_id_should_be( 'positive_int' );
-		$translation->user_id_should_be( 'positive_int' );
+	public function restrict_fields( $rules ) {
+		$rules->translation_0_should_not_be( 'empty_string' );
+		$rules->status_should_not_be( 'empty' );
+		$rules->original_id_should_be( 'positive_int' );
+		$rules->translation_set_id_should_be( 'positive_int' );
+		$rules->user_id_should_be( 'positive_int' );
 	}
 
 
