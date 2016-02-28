@@ -7,7 +7,7 @@ class GP_CLI_Translation_Set extends WP_CLI_Command {
 	 * @param string $project Project path
 	 * @param string $locale Locale slug
 	 * @param string $set Set slug
-	 * @return GP_Translation_Set|WP_Error Translation set if available, error otherwise.
+	 * @return object Translation set (GP_Translation_Set class) if available, error (WP_Error class) otherwise.  Note, PHPDoc doesn't know about WP_Error so we can explicitly define it in the return types.
 	 */
 	protected function get_translation_set( $project, $locale, $set = 'default' ) {
 		$this->project = GP::$project->by_path( $project );
