@@ -467,17 +467,19 @@ class GP_Route_Translation extends GP_Route_Main {
 	 * @param GP_Project $project
 	 * @param GP_Locale $locale
 	 * @param GP_Translation_Set $translation_set
-	 * @param GP_Translation $translation
+	 * @param GP_Translation $translation_param Note this parameter name has been altered to avoid a 
+	 *                                          conflict with the @type in the action call doc block 
+	 *                                          when Scrutinizer runs.
 	 */
-	private function discard_warning_edit_function( $project, $locale, $translation_set, $translation ) {
-		if ( ! isset( $translation->warnings[ gp_post( 'index' ) ][ gp_post( 'key' ) ] ) ) {
+	private function discard_warning_edit_function( $project, $locale, $translation_set, $translation_param ) {
+		if ( ! isset( $translation_param->warnings[ gp_post( 'index' ) ][ gp_post( 'key' ) ] ) ) {
 			return $this->die_with_error( 'The warning doesn&#8217;exist!' );
 		}
 
 		$warning = array(
 			'project_id' => $project->id,
 			'translation_set' =>$translation_set->id,
-			'translation' => $translation->id,
+			'translation' => $translation_param->id,
 			'warning' => gp_post( 'key' ),
 			'user' => get_current_user_id()
 		);
@@ -497,12 +499,12 @@ class GP_Route_Translation extends GP_Route_Main {
 		 */
 		do_action_ref_array( 'gp_warning_discarded', $warning );
 
-		unset( $translation->warnings[gp_post( 'index' )][gp_post( 'key' )] );
-		if ( empty( $translation->warnings[gp_post( 'index' )] ) ) {
-			unset( $translation->warnings[gp_post( 'index' )] );
+		unset( $translation_param->warnings[gp_post( 'index' )][gp_post( 'key' )] );
+		if ( empty( $translation_param->warnings[gp_post( 'index' )] ) ) {
+			unset( $translation_param->warnings[gp_post( 'index' )] );
 		}
 
-		$res = $translation->save();
+		$res = $translation_param->save();
 
 		if ( false === $res || null === $res ) {
 			return $this->die_with_error( 'Error in saving the translation!' );
@@ -517,7 +519,7 @@ class GP_Route_Translation extends GP_Route_Main {
 		 * @param bool $propagate If a translation should be propagated across projects.
 		 */
 		if ( apply_filters( 'gp_enable_propagate_translations_across_projects', true ) ) {
-			$translation->propagate_across_projects();
+			$translation_param->propagate_across_projects();
 		}
 	}
 
