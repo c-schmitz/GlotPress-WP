@@ -146,13 +146,13 @@ class GP_Format_Properties extends GP_Format {
 		$code = ord( substr( $string, $offset, 1 ) ); 
 		$bytesnumber = 1;
 		
-		if ( $code >= 128 ) {        //otherwise 0xxxxxxx
+		if ( $code >= 128 ) {             //otherwise 0xxxxxxx
 			if ( $code < 224 ) {
-				$bytesnumber = 2;                //110xxxxx
+				$bytesnumber = 2;        //110xxxxx
 			} else if ($code < 240) {
 				$bytesnumber = 3;        //1110xxxx
 			} else if ( $code < 248 ) {
-				$bytesnumber = 4;    //11110xxx
+				$bytesnumber = 4;        //11110xxx
 			}
 			
 			$codetemp = $code - 192 - ($bytesnumber > 2 ? 32 : 0) - ($bytesnumber > 3 ? 16 : 0);
@@ -278,7 +278,17 @@ class GP_Format_Properties extends GP_Format {
 				
 				$entry = new Translation_Entry();
 				$entry->context = rtrim( $this->unescape( $matches[1] ) );
-				$entry->singular = $this->uni_decode( $matches[3] );
+				/* So the following line looks a little weird, why encode just to decode?
+				 *
+				 * The reason is simple, properties files are in ISO-8859-1 aka Latin-1 format
+				 * and can have extended characters above 127 by below 256 represented by a
+				 * single byte.  That will break things later as PHP/MySQL will not accept
+				 * a mixed encoding string with these high single byte characters in them.
+				 *
+				 * So let's convert everything to escaped unicode first and then decode 
+				 * the whole kit and kaboodle to UTF-8.
+				 */
+				$entry->singular = $this->uni_encode( $this->uni_decode( $matches[3] ) );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
