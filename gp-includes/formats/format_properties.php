@@ -288,7 +288,7 @@ class GP_Format_Properties extends GP_Format {
 				 * So let's convert everything to escaped unicode first and then decode 
 				 * the whole kit and kaboodle to UTF-8.
 				 */
-				$entry->singular = $this->uni_encode( $this->uni_decode( $matches[3] ) );
+				$entry->singular = $this->uni_decode( $this->uni_encode( $matches[3] ) );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
