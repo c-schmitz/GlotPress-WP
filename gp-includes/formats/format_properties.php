@@ -29,7 +29,7 @@ class GP_Format_Properties extends GP_Format {
 			$original = str_replace( "\n", "\\n", $original );
 
 			$translation = str_replace( "\n", "\\n", $translation );
-			$translation = $this->uni_encode( $translation );
+			$translation = $this->utf8_uni_encode( $translation );
 
 			$comment = preg_replace( "/(^\s+)|(\s+$)/us", "", $entry->extracted_comments );
 
@@ -50,7 +50,7 @@ class GP_Format_Properties extends GP_Format {
 	}
 
 	/**
-	 * Encodes a PHP string to a unicode escaped string (multi-byte characters are encoded in the \uXXXX format).
+	 * Encodes a PHP string in UTF8 format to a unicode escaped string (multi-byte characters are encoded in the \uXXXX format).
 	 *
 	 * @since 1.1.0
 	 *
@@ -58,17 +58,42 @@ class GP_Format_Properties extends GP_Format {
 	 *
 	 * @return string
 	 */
-	private function uni_encode( $string ) {
+	private function utf8_uni_encode( $string ) {
 		$result = '';
 		$offset = 0;
 		
 		while ( $offset >= 0 ) {
 			$val = $this->ordutf8( $string, $offset );
 
-			if( $val > 128 ) {
+			if( $val > 127 ) {
 				$result .= sprintf( '\u%04x', $val );
 			} else {
 				$result .= chr( $val );
+			}
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Encodes a PHP string in ascii format to a unicode escaped string (multi-byte characters are encoded in the \uXXXX format).
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param $string string The string to encode.
+	 *
+	 * @return string
+	 */
+	private function ascii_uni_encode( $string ) {
+		$result = '';
+
+		for( $i = 0; $i < strlen( $string ); $i++ ) {
+			$val = ord( $string[ $i ] );
+
+			if( $val > 127 ) {
+				$result .= sprintf( '\u%04x', $val );
+			} else {
+				$result .= $string[ $i ] ;
 			}
 		}
 		
@@ -131,7 +156,7 @@ class GP_Format_Properties extends GP_Format {
 	}
 	
 	/**
-	 * Part of uni_encode(), this returns the character value of a UTF-8 encoded string.
+	 * Part of utf8_uni_encode(), this returns the character value of a UTF-8 encoded string.
 	 *
 	 * From http://php.net/manual/en/function.ord.php#109812
 	 *
@@ -202,12 +227,7 @@ class GP_Format_Properties extends GP_Format {
 		foreach( $translations->entries as $key => $entry ) {
 			// we have been using read_originals_from_file to parse the file
 			// so we need to swap singular and translation
-			if ( $entry->context == $entry->singular ) {
-				$entry->translations = array();
-			} else {
-				$entry->translations = array( $entry->singular );
-			}
-
+			$entry->translations = array( $entry->singular );
 			$entry->singular = null;
 
 			foreach( $originals as $original ) {
@@ -281,14 +301,14 @@ class GP_Format_Properties extends GP_Format {
 				/* So the following line looks a little weird, why encode just to decode?
 				 *
 				 * The reason is simple, properties files are in ISO-8859-1 aka Latin-1 format
-				 * and can have extended characters above 127 by below 256 represented by a
+				 * and can have extended characters above 127 but below 256 represented by a
 				 * single byte.  That will break things later as PHP/MySQL will not accept
 				 * a mixed encoding string with these high single byte characters in them.
 				 *
 				 * So let's convert everything to escaped unicode first and then decode 
 				 * the whole kit and kaboodle to UTF-8.
 				 */
-				$entry->singular = $this->uni_decode( $this->uni_encode( $matches[3] ) );
+				$entry->singular = $this->uni_decode( $this->ascii_uni_encode( $matches[3] ) );
 
 				if ( ! is_null( $comment )) {
 					$entry->extracted_comments = $comment;
