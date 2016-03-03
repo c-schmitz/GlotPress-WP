@@ -180,6 +180,13 @@ class GP_Route_Project extends GP_Route_Main {
 		$this->redirect( gp_url_project( $project ) );
 	}
 
+	/**
+	 * Deletes a project, including sub projects, glossaries, originals, translations sets and translations.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $project_id The id of the project to delete.
+	 */
 	public function delete_post( $project_id ) {
 		$project = GP::$project->find_one( array( 'id' => $project_id ) );
 		
@@ -205,6 +212,13 @@ class GP_Route_Project extends GP_Route_Main {
 		$this->redirect( gp_url_public_root() );
 	}
 	
+	/**
+	 * Displays the delete page for projects.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $glossary_id The id of the project to delete.
+	 */
 	public function delete_get( $project_path ) {
 		$project = GP::$project->by_path( $project_path );
 
