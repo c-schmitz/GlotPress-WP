@@ -191,7 +191,7 @@ class GP_Route_Project extends GP_Route_Main {
 			return;
 		}
 
-		if ( $this->cannot_and_redirect( 'write', 'project', $project->id ) ) {
+		if ( $this->cannot_and_redirect( 'delete', 'project', $project->id ) ) {
 			return;
 		}
 
@@ -208,7 +208,7 @@ class GP_Route_Project extends GP_Route_Main {
 	public function delete_get( $project_path ) {
 		$project = GP::$project->by_path( $project_path );
 
-		if ( $this->cannot_and_redirect( 'write', 'project', $project->id ) ) {
+		if ( $this->cannot_and_redirect( 'delete', 'project', $project->id ) ) {
 			return;
 		}
 
